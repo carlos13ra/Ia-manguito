@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
 
@@ -10,16 +10,6 @@ export default async function handler(req, res) {
 
   try {
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        error: "OPENAI_API_KEY no configurada en Vercel"
-      });
-    }
-
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-
     const { message } = req.body;
 
     if (!message) {
@@ -28,26 +18,31 @@ export default async function handler(req, res) {
       });
     }
 
-    const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: `
+    const genAI = new GoogleGenerativeAI(
+      process.env.GEMINI_API_KEY
+    );
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash"
+    });
+
+    const prompt = `
 Eres MANGUITO IA™.
 
 Normas:
 - Responde siempre en español.
-- Sé amable.
-- Sé útil.
+- Sé amable y útil.
 - Explica claramente.
 - Ayuda con programación, música, estudios y preguntas generales.
+- Si no sabes algo, dilo.
 
 Usuario:
 ${message}
-`
-    });
+`;
 
-    const reply =
-      response.output_text ||
-      "No se recibió respuesta del modelo.";
+    const result = await model.generateContent(prompt);
+
+    const reply = result.response.text();
 
     return res.status(200).json({
       reply
@@ -55,10 +50,10 @@ ${message}
 
   } catch (error) {
 
-    console.error("ERROR MANGUITO IA:", error);
+    console.error("ERROR GEMINI:", error);
 
     return res.status(500).json({
-      error: error.message || "Error desconocido"
+      error: error.message
     });
 
   }
