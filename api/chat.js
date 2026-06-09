@@ -1,9 +1,5 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
@@ -14,18 +10,34 @@ export default async function handler(req, res) {
 
   try {
 
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({
+        error: "OPENAI_API_KEY no configurada en Vercel"
+      });
+    }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+
     const { message } = req.body;
 
+    if (!message) {
+      return res.status(400).json({
+        error: "Mensaje vacío"
+      });
+    }
+
     const response = await openai.responses.create({
-      model: "gpt-5",
+      model: "gpt-4.1-mini",
       input: `
 Eres MANGUITO IA™.
 
 Normas:
 - Responde siempre en español.
-- Sé útil y amigable.
+- Sé amable.
+- Sé útil.
 - Explica claramente.
-- Si no sabes algo, dilo.
 - Ayuda con programación, música, estudios y preguntas generales.
 
 Usuario:
@@ -33,14 +45,20 @@ ${message}
 `
     });
 
-    res.status(200).json({
-      reply: response.output_text
+    const reply =
+      response.output_text ||
+      "No se recibió respuesta del modelo.";
+
+    return res.status(200).json({
+      reply
     });
 
   } catch (error) {
 
-    res.status(500).json({
-      error: error.message
+    console.error("ERROR MANGUITO IA:", error);
+
+    return res.status(500).json({
+      error: error.message || "Error desconocido"
     });
 
   }
