@@ -26,16 +26,18 @@
 <meta name="twitter:image" content="https://manguito-ia.vercel.app/banner.png">
 
 <!-- PWA -->
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/manifest.json">
+
 <meta name="theme-color" content="#00ffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="MANGUITO IA">
+<meta name="application-name" content="MANGUITO IA">
 
 <!-- ICONOS -->
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="/icon.png">
+<link rel="apple-touch-icon" href="/icon.png">
 
 <!-- CSS -->
 <link rel="stylesheet" href="style.css">
@@ -80,6 +82,22 @@ Enviar
 
 </div>
 
+<!-- Registrar Service Worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => {
+        console.log("Service Worker registrado");
+      })
+      .catch((err) => {
+        console.log("Error SW:", err);
+      });
+  });
+}
+</script>
+
+<!-- APP -->
 <script src="app.js"></script>
 
 </body>
