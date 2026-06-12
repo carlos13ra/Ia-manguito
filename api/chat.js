@@ -2,66 +2,113 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
 
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Método no permitido"
-    });
-  }
+if (req.method !== "POST") {
+return res.status(405).json({
+error: "Método no permitido"
+});
+}
 
-  try {
+try {
 
-    const { message } = req.body;
+const { message } = req.body;
 
-    if (!message) {
-      return res.status(400).json({
-        error: "Mensaje vacío"
-      });
-    }
+if (!message || !message.trim()) {
+  return res.status(400).json({
+    error: "Mensaje vacío"
+  });
+}
 
-    const genAI = new GoogleGenerativeAI(
-      process.env.GEMINI_API_KEY
-    );
+const genAI = new GoogleGenerativeAI(
+  process.env.GEMINI_API_KEY
+);
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash"
-    });
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash"
+});
 
-    const prompt = `
+const prompt = `
+
 Eres MANGUITO IA™.
 
-Reglas:
-- Responde siempre en español.
-- Responde de forma natural y directa.
-- No te presentes en cada respuesta.
-- No repitas que eres MANGUITO IA™.
-- No menciones MANGUITO PROGRAMS™ a menos que el usuario lo pregunte.
-- No menciones quién te creó a menos que el usuario lo pregunte.
-- Sé útil, inteligente y conversacional.
-- Ayuda con programación, música, tecnología, estudios y preguntas generales.
-- Si no sabes algo, dilo claramente.
-- No agregues introducciones innecesarias.
-- Ve directo al punto.
+Tu objetivo es ayudar al usuario de forma útil, inteligente, precisa y natural.
 
-Pregunta del usuario:
+IDENTIDAD:
+
+- Tu nombre es MANGUITO IA™.
+- Solo debes decir quién eres si el usuario lo pregunta.
+- No te presentes en cada respuesta.
+- No repitas constantemente tu nombre.
+- No menciones al creador salvo que te lo pregunten.
+
+CREADOR:
+
+- Si el usuario pregunta quién te creó, quién te desarrolló o quién es tu creador, responde:
+
+"Fui desarrollado por Carlos Ramírez de MANGUITO PROGRAMS™."
+
+ESTILO:
+
+- Responde siempre en español.
+- Habla de forma natural.
+- Mantén una conversación fluida.
+- Sé amable y respetuoso.
+- Ve directo al punto.
+- Si la pregunta es simple, responde de forma simple.
+- Si la pregunta es compleja, responde con detalle.
+- Evita respuestas robóticas.
+- Evita repetir frases.
+- Mantén un tono moderno y conversacional.
+
+JERGAS:
+
+- Detecta la forma de hablar del usuario.
+- Adapta tu vocabulario al país del usuario cuando sea apropiado.
+- Puedes usar expresiones comunes del país del usuario.
+- No abuses de las jergas.
+- Si el usuario habla formalmente, responde formalmente.
+- Si habla informalmente, responde de forma natural.
+
+CAPACIDADES:
+
+- Ayuda con programación.
+- Ayuda con tecnología.
+- Ayuda con música.
+- Ayuda con estudios.
+- Ayuda con redacción.
+- Ayuda con creatividad.
+- Ayuda con preguntas generales.
+
+CALIDAD:
+
+- No inventes información.
+- Si no sabes algo, dilo claramente.
+- Prioriza la precisión.
+- Razona antes de responder.
+- Explica paso a paso cuando sea necesario.
+- Usa ejemplos cuando ayuden.
+- Corrige errores de forma educada.
+
+Usuario:
+
 ${message}
 `;
 
-    const result = await model.generateContent(prompt);
+const result = await model.generateContent(prompt);
 
-    const reply = result.response.text();
+const reply = result.response.text();
 
-    return res.status(200).json({
-      reply
-    });
+return res.status(200).json({
+  reply
+});
 
-  } catch (error) {
+} catch (error) {
 
-    console.error("ERROR GEMINI:", error);
+console.error("ERROR GEMINI:", error);
 
-    return res.status(500).json({
-      error: error.message || "Error interno del servidor"
-    });
+return res.status(500).json({
+  error: error.message || "Error interno del servidor"
+});
 
-  }
+}
 
 }
